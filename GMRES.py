@@ -16,10 +16,20 @@ class GMRES_API:
     def initial_guess_input( self, x: np.array([], dtype = float ) ):
         print("Hello GMRES init input")
         self.x = x
-        print("x = ", self.x)
+
 
     def run( self ):
         print("GMRES run!")
+        print("A = \n", self.A)
+        self.n = int( np.sqrt(np.size( self.A )) )
+        print("size of A = ", self.n)
+
+        print("b = ", self.b)
+        print("x = ", self.x)
+        
+        self.r = self.b - np.dot(self.A , self.x)
+        print("r = ", self.r)
+
 
         
 
@@ -33,7 +43,7 @@ def main():
 
     GMRES_test_No1 = GMRES_API( A_mat, b_mat, 1, 0.01)
 
-    x_mat = np.array( [0.01, 0.01] )
+    x_mat = np.array( [0.00, 0.00] )
 
     GMRES_test_No1.initial_guess_input( x_mat )
 
