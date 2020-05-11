@@ -51,7 +51,8 @@ class GMRES_API:
         self.r_norm = np.linalg.norm( self.r )
         print("r_norm = ", self.r_norm)
 
-        self.Q = self.r / self.r_norm
+        self.Q = np.zeros((self.n, self.m))
+        self.Q[:,0] = self.r / self.r_norm
         print("Q = ", self.Q)
         self.Q_norm = np.linalg.norm( self.Q )
         print("Q_norm = ", self.Q_norm)
@@ -62,15 +63,33 @@ class GMRES_API:
         
         for k in range(0, self.m):
             print(k)
+            print( self.arnoldi( self.A, self.Q, k) )
+
+    def arnoldi( self, A, Q, k):
+        print("Hello arnoldi working")
+        h = np.zeros(k+1)
+        q = np.dot(A, Q[:,k])
+        for i in range (0, k):
+            print( Q[:,i] ) 
+            print(np.dot( q, Q[:,i]))
+            h[i] = np.dot( q, Q[:,i])
+            q = q - h[i] * Q[:, i]
+        print("q = ", q)
+        h[k] = np.linalg.norm(q)
+        print("h = ", h)
+        #q = q / h[k]
+
+        return h, q 
+
 
     
 def main():
 
-    A_mat = np.array( [[1.01, 1.00, 0.00],
-                       [0.00, 2.01, 0.00],
-                       [0.00, 0.00, 0.01]] )
+    A_mat = np.array( [[1.00, 1.00, 1.00],
+                       [0.00, 2.00, 1.00],
+                       [0.00, 0.00, 3.00]] )
 
-    b_mat = np.array( [2.0, 0.0, 1.0] )
+    b_mat = np.array( [3.0, 2.0, 1.0] )
 
     GMRES_test_No1 = GMRES_API( A_mat, b_mat, 3, 0.01)
 
