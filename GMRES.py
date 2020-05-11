@@ -25,25 +25,31 @@ class GMRES_API:
         print("size of A = ", self.n)
 
         print("b = ", self.b)
+
         print("x = ", self.x)
         
         self.r = self.b - np.dot(self.A , self.x)
         print("r = ", self.r)
 
-
+        self.b_norm = np.linalg.norm( self.b )
+        print("b_norm = ", self.b_norm)
+        self.error = np.linalg.norm( self.r ) / self.b_norm
+        print("error = ", self.error )
+        
         
 
     
 def main():
 
-    A_mat = np.array( [[0.01, 0.00],
-                       [0.00, 0.01]] )
+    A_mat = np.array( [[1.01, 1.00, 0.00],
+                       [0.00, 2.01, 0.00],
+                       [0.00, 0.00, 0.01]] )
 
-    b_mat = np.array( [1.00, 0.00] )
+    b_mat = np.array( [2.0, 0.0, 1.0] )
 
     GMRES_test_No1 = GMRES_API( A_mat, b_mat, 1, 0.01)
 
-    x_mat = np.array( [0.00, 0.00] )
+    x_mat = np.array( [0.00, 0.10, 0.00] )
 
     GMRES_test_No1.initial_guess_input( x_mat )
 
