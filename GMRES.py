@@ -50,7 +50,18 @@ class GMRES_API:
         self.e = [self.error]
         self.r_norm = np.linalg.norm( self.r )
         print("r_norm = ", self.r_norm)
+
+        self.Q = self.r / self.r_norm
+        print("Q = ", self.Q)
+        self.Q_norm = np.linalg.norm( self.Q )
+        print("Q_norm = ", self.Q_norm)
+
+        self.beta = self.r_norm * self.e1 
+        # beta is the beta vector instead of the beta scalar
+        print("beta = ", self.beta)
         
+        for k in range(0, self.m):
+            print(k)
 
     
 def main():
@@ -61,7 +72,7 @@ def main():
 
     b_mat = np.array( [2.0, 0.0, 1.0] )
 
-    GMRES_test_No1 = GMRES_API( A_mat, b_mat, 1, 0.01)
+    GMRES_test_No1 = GMRES_API( A_mat, b_mat, 3, 0.01)
 
     x_mat = np.array( [0.00, 0.10, 0.00] )
 
