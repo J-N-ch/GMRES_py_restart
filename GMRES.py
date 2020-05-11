@@ -24,6 +24,9 @@ class GMRES_API:
         self.n = int( np.sqrt(np.size( self.A )) )
         print("size of A = ", self.n)
 
+        self.m = self.max_iterations
+        print("maximum iterations = ", self.m)
+
         print("b = ", self.b)
 
         print("x = ", self.x)
@@ -33,9 +36,20 @@ class GMRES_API:
 
         self.b_norm = np.linalg.norm( self.b )
         print("b_norm = ", self.b_norm)
+
         self.error = np.linalg.norm( self.r ) / self.b_norm
         print("error = ", self.error )
         
+        # initialize the 1D vectors 
+        self.sn = np.zeros( self.m )
+        self.cs = np.zeros( self.m )
+        self.e1 = np.zeros( self.n )
+        self.e1[0] = 1.0
+        print("e1 = ", self.e1)
+
+        self.e = [self.error]
+        self.r_norm = np.linalg.norm( self.r )
+        print("r_norm = ", self.r_norm)
         
 
     
