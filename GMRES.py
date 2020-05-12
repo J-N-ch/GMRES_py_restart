@@ -43,7 +43,7 @@ class GMRES_API:
         # initialize the 1D vectors 
         self.sn = np.zeros( self.m )
         self.cs = np.zeros( self.m )
-        self.e1 = np.zeros( self.n )
+        self.e1 = np.zeros( self.n + 1 )
         self.e1[0] = 1.0
         print("e1 = ", self.e1)
 
@@ -63,32 +63,67 @@ class GMRES_API:
         # beta is the beta vector instead of the beta scalar
         print("beta = ", self.beta)
         
-        for k in range(0, self.m):
+        for k in range(self.m):
             print(k)
-            #print( self.arnoldi( self.A, self.Q, k) )
 
-            ( self.H[0:k+1, k], self.Q[:, k+1] ) = self.arnoldi( self.A, self.Q, k)
-        print(self.H)
+            #print( self.arnoldi( self.A, self.Q, k) )
+            ( self.H[0:k+2, k], self.Q[:, k+1] ) = self.arnoldi( self.A, self.Q, k)
+            print(self.H)
+            ( self.H[0:k+2, k], self.cs[k], self.sn[k] ) = self.apply_givens_rotation(self.H[0:k+2, k], self.cs, self.sn, k)
+            print(self.H)
+            
+            # update the residual vector
+            self.beta[k+1] = -self.sn[k] * self.beta[k]
+            self.beta[k]   =  self.cs[k] * self.beta[k]
+            self.error          = abs(self.beta[k+1]) / self.b_norm
+
 
     '''''''''''''''''''''''''''''''''''
     '        Arnoldi Function         '
     '''''''''''''''''''''''''''''''''''
     def arnoldi( self, A, Q, k):
-        h = np.zeros( k+1 )
+        h = np.zeros( k+2 )
         q = np.dot( A, Q[:,k] )
-        for i in range (0, k):
+        for i in range (k+1):
             h[i] = np.dot( q, Q[:,i])
             q = q - h[i] * Q[:, i]
-        h[k] = np.linalg.norm(q)
-        q = q / h[k]
+        h[k + 1] = np.linalg.norm(q)
+        q = q / h[k + 1]
         return h, q 
 
+    '''''''''''''''''''''''''''''''''''''''''''''
+    '     Applying Givens Rotation to H col     '
+    '''''''''''''''''''''''''''''''''''''''''''''
+    def apply_givens_rotation( self, h, cs, sn, k ):
+        print("k =", k)
+        for i in range( k-1 ):
+            temp   =  cs[i] * h[i] + sn[i] * h[i+1]
+            h[i+1] = -sn[i] * h[i] + cs[i] * h[i+1]
+            h[i]   = temp
+        # update the next sin cos values for rotation
+        [ cs_k, sn_k ] = self.givens_rotation( h[k-1], h[k] )
+        
+        # eliminate H[ i + 1, i ]
+        h[k] = cs_k * h[k] + sn_k * h[k + 1]
+        h[k + 1] = 0.0
+        return h, cs_k, sn_k
+
+    ##----Calculate the Given rotation matrix----##
+    def givens_rotation( self, v1, v2 ):
+        if(v1 == 0):
+            cs = 0
+            sn = 1
+        else:
+            t = np.sqrt(v1**2 + v2**2)
+            cs = abs(v1) / t
+            sn = cs * v2 / v1
+        return cs, sn
 
     
 def main():
 
     A_mat = np.array( [[1.00, 1.00, 1.00],
-                       [0.00, 2.00, 1.00],
+                       [1.00, 2.00, 1.00],
                        [0.00, 0.00, 3.00]] )
 
     b_mat = np.array( [3.0, 2.0, 1.0] )
