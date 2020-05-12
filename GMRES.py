@@ -51,7 +51,9 @@ class GMRES_API:
         self.r_norm = np.linalg.norm( self.r )
         print("r_norm = ", self.r_norm)
 
-        self.Q = np.zeros((self.n, self.m))
+        self.H = np.zeros((self.m+1, self.n))
+        print("H = ", self.H)
+        self.Q = np.zeros((self.n, self.m+1))
         self.Q[:,0] = self.r / self.r_norm
         print("Q = ", self.Q)
         self.Q_norm = np.linalg.norm( self.Q )
@@ -63,22 +65,22 @@ class GMRES_API:
         
         for k in range(0, self.m):
             print(k)
-            print( self.arnoldi( self.A, self.Q, k) )
+            #print( self.arnoldi( self.A, self.Q, k) )
 
+            ( self.H[0:k+1, k], self.Q[:, k+1] ) = self.arnoldi( self.A, self.Q, k)
+        print(self.H)
+
+    '''''''''''''''''''''''''''''''''''
+    '        Arnoldi Function         '
+    '''''''''''''''''''''''''''''''''''
     def arnoldi( self, A, Q, k):
-        print("Hello arnoldi working")
-        h = np.zeros(k+1)
-        q = np.dot(A, Q[:,k])
+        h = np.zeros( k+1 )
+        q = np.dot( A, Q[:,k] )
         for i in range (0, k):
-            print( Q[:,i] ) 
-            print(np.dot( q, Q[:,i]))
             h[i] = np.dot( q, Q[:,i])
             q = q - h[i] * Q[:, i]
-        print("q = ", q)
         h[k] = np.linalg.norm(q)
-        print("h = ", h)
-        #q = q / h[k]
-
+        q = q / h[k]
         return h, q 
 
 
