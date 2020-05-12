@@ -91,9 +91,9 @@ class GMRES_API:
         q = q / h[k + 1]
         return h, q 
 
-    '''''''''''''''''''''''''''''''''''''''''''''
-    '     Applying Givens Rotation to H col     '
-    '''''''''''''''''''''''''''''''''''''''''''''
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    '           Applying Givens Rotation to H col           '
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
     def apply_givens_rotation( self, h, cs, sn, k ):
         print("k =", k)
         for i in range( k-1 ):
