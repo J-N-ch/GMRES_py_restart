@@ -89,6 +89,7 @@ class GMRES_API:
                 break
 
         # calculate the result
+        #TODO Due to self.H[0:k+1, 0:k+1] being a upper tri-matrix, we can exploit this fact. 
         #print("Hinv = \n", np.linalg.inv(self.H[0:k+1, 0:k+1]))
         self.y = np.matmul( np.linalg.inv(self.H[0:k+1, 0:k+1]), self.beta[0:k+1] )
         #print(self.y) 
