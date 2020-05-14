@@ -174,12 +174,15 @@ def main():
     print("x  =", x_mat)
 
     # GMRES with restart, 2 iterations in each restart ( GMRES(2) )
-    max_restart_counts = 130
+    max_restart_counts = 200
     for restart_counter in range(max_restart_counts):
         GMRES_test_itr2.initial_guess_input( x_mat )
 
         x_mat = GMRES_test_itr2.run()
-        print(restart_counter+1," : x  =", x_mat)
+
+        residual_norm = np.linalg.norm( b_mat - np.matmul(A_mat, x_mat) )
+        
+        print( restart_counter+1," : x  =", x_mat, "residual_norm =  ", residual_norm )
 
 
 
