@@ -90,12 +90,10 @@ class GMRES_API:
 
         # calculate the result
         #TODO Due to self.H[0:k+1, 0:k+1] being a upper tri-matrix, we can exploit this fact. 
-        #print("Hinv = \n", np.linalg.inv(self.H[0:k+1, 0:k+1]))
-        self.y = np.matmul( np.linalg.inv(self.H[0:k+1, 0:k+1]), self.beta[0:k+1] )
-        #print(self.y) 
+        self.y = self.back_substitution( self.H[0:k+1, 0:k+1], self.beta[0:k+1] )
+        #self.y = np.matmul( np.linalg.inv(self.H[0:k+1, 0:k+1]), self.beta[0:k+1] )
+
         self.x = self.x + np.matmul(self.Q[:,0:k+1], self.y)
-        #print("restart = ",restart_counter,"x =",self.x) 
-        #print("x  =",self.x) 
 
         return self.x
 
@@ -142,6 +140,25 @@ class GMRES_API:
             sn = cs * v2 / v1
         return cs, sn
 
+    # From https://stackoverflow.com/questions/47551069/back-substitution-in-python
+    def back_substitution(self, A: np.ndarray, b: np.ndarray) -> np.ndarray:
+        n = b.size
+        x = np.zeros_like(b)
+
+        if A[n-1, n-1] == 0:
+            raise ValueError
+
+        x[n-1] = b[n-1]/A[n-1, n-1]
+        C = np.zeros((n,n))
+        for i in range(n-2, -1, -1):
+            bb = 0
+            for j in range (i+1, n):
+                bb += A[i, j]*x[j]
+
+            C[i, i] = b[i] - bb
+            x[i] = C[i, i]/A[i, i]
+
+        return x
     
 def main():
 
