@@ -163,8 +163,8 @@ class GMRES_API:
 def main():
 
     A_mat = np.array( [[1.00, 1.00, 1.00],
-                       [1.00, 2.00, 1.00],
-                       [0.00, 0.00, 3.00]] )
+                       [1.50, 2.00, 1.00],
+                       [0.30, 0.50, 3.00]] )
 
     b_mat = np.array( [3.0, 2.0, 1.0] )
 
@@ -174,7 +174,7 @@ def main():
     print("x  =", x_mat)
 
     # GMRES with restart, 2 iterations in each restart ( GMRES(2) )
-    max_restart_counts = 100
+    max_restart_counts = 130
     for restart_counter in range(max_restart_counts):
         GMRES_test_itr2.initial_guess_input( x_mat )
 
