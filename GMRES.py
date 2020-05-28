@@ -90,7 +90,7 @@ class GMRES_API:
 
         # calculate the result
         #TODO Due to self.H[0:k+1, 0:k+1] being a upper tri-matrix, we can exploit this fact. 
-        self.y = self.back_substitution( self.H[0:k+1, 0:k+1], self.beta[0:k+1] )
+        self.y = self.__back_substitution( self.H[0:k+1, 0:k+1], self.beta[0:k+1] )
         #self.y = np.matmul( np.linalg.inv(self.H[0:k+1, 0:k+1]), self.beta[0:k+1] )
 
         self.x = self.x + np.matmul(self.Q[:,0:k+1], self.y)
@@ -141,7 +141,7 @@ class GMRES_API:
         return cs, sn
 
     # From https://stackoverflow.com/questions/47551069/back-substitution-in-python
-    def back_substitution(self, A: np.ndarray, b: np.ndarray) -> np.ndarray:
+    def __back_substitution(self, A: np.ndarray, b: np.ndarray) -> np.ndarray:
         n = b.size
         x = np.zeros_like(b)
 
