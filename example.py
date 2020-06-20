@@ -9,6 +9,10 @@ def main():
 
     b_mat = np.array( [3.0, 2.0, 1.0] )
 
+
+
+    # The restatrt algorithm of GMRES
+    #====================================================================================
     GMRES_test_itr2 = GMRES.GMRES_API( A_mat, b_mat, 2, 0.01)
 
     x_mat = np.array( [1.0, 1.0, 1.0] )
@@ -24,6 +28,9 @@ def main():
         residual_norm = np.linalg.norm( b_mat - np.matmul(A_mat, x_mat) )
         
         print( restart_counter+1," : x  =", x_mat, "residual_norm =  ", residual_norm )
+    #====================================================================================
+
+
 
     xx = np.matmul( np.linalg.inv(A_mat), b_mat )
     print("ANS : xx =", xx) 
