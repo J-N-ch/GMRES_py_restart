@@ -24,7 +24,7 @@ class RestartAlgorithm(object):
 
             self.init_in = self.restart_output
 
-            print( restart_counter+1, end = '' )
+            print( restart_counter+1, ": ", end = '' )
             self.k_algo.final_residual_info_show()
 
         #return self.restart_output

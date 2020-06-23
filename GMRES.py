@@ -137,5 +137,5 @@ class GMRES_API(object):
 
     def final_residual_info_show( self ):
         final_residual_norm = np.linalg.norm( self.b - np.matmul( self.A, self.x ) )
-        print("  : x  =", self.x, "residual_norm =  ", final_residual_norm ) 
+        print("x  =", self.x, "residual_norm =  ", final_residual_norm ) 
     
