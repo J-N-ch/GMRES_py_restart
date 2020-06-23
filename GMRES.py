@@ -1,21 +1,19 @@
 import numpy as np
 
-class GMRES_API:
+class GMRES_API(object):
     def __init__( self,
-                  A: np.array([], dtype = float ),
-                  b: np.array([], dtype = float ),
-                  max_iterations: int,
+                  A_coefficient_matrix: np.array([], dtype = float ),
+                  b_boundary_condition_vector: np.array([], dtype = float ),
+                  maximum_iterations: int,
                   threshold: float ):
 
-        #print("Hello GMRES")
-        self.A = A
-        self.b = b
-        self.max_iterations = max_iterations
+        self.A = A_coefficient_matrix
+        self.b = b_boundary_condition_vector
+        self.max_iterations = maximum_iterations
         self.threshold = threshold
 
-    def initial_guess_input( self, x: np.array([], dtype = float ) ):
-        #print("Hello GMRES init input")
-        self.x = x
+    def initial_guess_input( self, x_input_vector_initial_guess: np.array([], dtype = float ) ):
+        self.x = x_input_vector_initial_guess
 
 
     def run( self ):
@@ -136,4 +134,8 @@ class GMRES_API:
             x[i] = C[i, i]/A[i, i]
 
         return x
+
+    def final_residual_info_show( self ):
+        final_residual_norm = np.linalg.norm( self.b - np.matmul( self.A, self.x ) )
+        print("  : x  =", self.x, "residual_norm =  ", final_residual_norm ) 
     

@@ -1,5 +1,6 @@
 import numpy as np
 import GMRES
+import RestartAlgorithm
 
 def main():
 
@@ -9,27 +10,21 @@ def main():
 
     b_mat = np.array( [3.0, 2.0, 1.0] )
 
-
-
-    # The restatrt algorithm of GMRES
-    #====================================================================================
+    # GMRES with restart, 2 iterations in each restart ( GMRES(2) )
     GMRES_test_itr2 = GMRES.GMRES_API( A_mat, b_mat, 2, 0.01)
-
     x_mat = np.array( [1.0, 1.0, 1.0] )
     print("x  =", x_mat)
 
-    # GMRES with restart, 2 iterations in each restart ( GMRES(2) )
+
+    # The restatrt algorithm of GMRES
+    #==============================================================================
+    restart_number_one = RestartAlgorithm.RestartAlgorithm()
+    restart_number_one.kernel_algorithm_register( GMRES_test_itr2 )
+    restart_number_one.restart_initial_input( x_mat )
     max_restart_counts = 200
-    for restart_counter in range(max_restart_counts):
-        GMRES_test_itr2.initial_guess_input( x_mat )
-
-        x_mat = GMRES_test_itr2.run()
-
-        residual_norm = np.linalg.norm( b_mat - np.matmul(A_mat, x_mat) )
-        
-        print( restart_counter+1," : x  =", x_mat, "residual_norm =  ", residual_norm )
-    #====================================================================================
-
+    restart_number_one.maximum_restarting_iteration_register( max_restart_counts )
+    restart_number_one.run_restart()
+    #==============================================================================
 
 
     xx = np.matmul( np.linalg.inv(A_mat), b_mat )
@@ -37,3 +32,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
