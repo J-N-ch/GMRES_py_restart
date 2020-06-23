@@ -21,8 +21,7 @@ def main():
     restart_number_one = RestartAlgorithm.RestartAlgorithm()
     restart_number_one.kernel_algorithm_register( GMRES_test_itr2 )
     restart_number_one.restart_initial_input( x_mat )
-    max_restart_counts = 200
-    restart_number_one.maximum_restarting_iteration_register( max_restart_counts )
+    restart_number_one.maximum_restarting_iteration_register( 200 )
     restart_number_one.run_restart()
     #==============================================================================
 
