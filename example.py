@@ -1,6 +1,7 @@
 import numpy as np
 import GMRES
 import RestartAlgorithm
+from matplotlib import pyplot as plt 
 
 def main():
 
@@ -22,8 +23,14 @@ def main():
     restart_number_one.kernel_algorithm_register( GMRES_test_itr2 )
     restart_number_one.restart_initial_input( x_mat )
     restart_number_one.maximum_restarting_iteration_register( 200 )
-    restart_number_one.run_restart()
+    x_final, r_trend = restart_number_one.run_restart()
     #==============================================================================
+
+    plt.title("restarted_GMRES_residual_trend") 
+    plt.xlabel("restart") 
+    plt.ylabel("residual") 
+    plt.plot(r_trend)
+    plt.show()
 
 
     xx = np.matmul( np.linalg.inv(A_mat), b_mat )

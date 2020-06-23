@@ -16,6 +16,9 @@ class RestartAlgorithm(object):
         #print(self.max_rst_iter)
 
     def run_restart( self ):
+         
+        self.final_residual_trend = np.array([], dtype = float )
+
         for restart_counter in range(self.max_rst_iter):
 
             self.k_algo.initial_guess_input( self.init_in )
@@ -25,7 +28,7 @@ class RestartAlgorithm(object):
             self.init_in = self.restart_output
 
             print( restart_counter+1, ": ", end = '' )
-            self.k_algo.final_residual_info_show()
-
-        #return self.restart_output
+            self.final_residual_trend = np.append( self.final_residual_trend, self.k_algo.final_residual_info_show() )
+             
+        return self.restart_output, self.final_residual_trend
 
