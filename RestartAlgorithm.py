@@ -23,11 +23,13 @@ class RestartAlgorithm(object):
 
             self.k_algo.initial_guess_input( self.init_in )
 
+            # run the kernel algorithm in each restart
             self.restart_output = self.k_algo.run()
 
             self.init_in = self.restart_output
 
             print( restart_counter+1, ": ", end = '' )
+
             self.final_residual_trend = np.append( self.final_residual_trend, self.k_algo.final_residual_info_show() )
              
         return self.restart_output, self.final_residual_trend

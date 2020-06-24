@@ -13,7 +13,9 @@ class GMRES_API(object):
         self.threshold = threshold
 
     def initial_guess_input( self, x_input_vector_initial_guess: np.array([], dtype = float ) ):
+
         self.x = x_input_vector_initial_guess
+
         if len( self.x ) != len( self.b ):
             print(" The input guess vector's size must equal to the system's size !\n")
             print(" The matrix system's size == ", len( self.b ))

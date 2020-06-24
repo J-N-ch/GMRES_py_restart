@@ -26,11 +26,15 @@ def main():
     x_final, r_trend = restarted_GMRES.run_restart()
     #=============================================================
 
+
+    # Draw the residual trend by the sequence of restarts
+    #============================================
     plt.title("restarted_GMRES_residual_trend") 
     plt.xlabel("restart") 
     plt.ylabel("residual") 
     plt.plot(r_trend)
     plt.show()
+    #============================================
 
 
     xx = np.matmul( np.linalg.inv(A_mat), b_mat )
@@ -38,4 +42,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
