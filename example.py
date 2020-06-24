@@ -19,11 +19,11 @@ def main():
 
     # The restatrt algorithm of GMRES
     #==============================================================================
-    restart_number_one = RestartAlgorithm.RestartAlgorithm()
-    restart_number_one.kernel_algorithm_register( GMRES_test_itr2 )
-    restart_number_one.restart_initial_input( x_mat )
-    restart_number_one.maximum_restarting_iteration_register( 200 )
-    x_final, r_trend = restart_number_one.run_restart()
+    restarted_GMRES = RestartAlgorithm.RestartAlgorithm()
+    restarted_GMRES.kernel_algorithm_register( GMRES_test_itr2 )
+    restarted_GMRES.restart_initial_input( x_mat )
+    restarted_GMRES.maximum_restarting_iteration_register( 200 )
+    x_final, r_trend = restarted_GMRES.run_restart()
     #==============================================================================
 
     plt.title("restarted_GMRES_residual_trend") 
