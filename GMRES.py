@@ -5,7 +5,7 @@ class GMRES_API(object):
                   A_coefficient_matrix: np.array([], dtype = float ),
                   b_boundary_condition_vector: np.array([], dtype = float ),
                   maximum_iterations: int,
-                  threshold: float ):
+                  threshold = 1.0e-16 ):
 
         self.A = A_coefficient_matrix
         self.b = b_boundary_condition_vector

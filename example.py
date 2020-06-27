@@ -12,9 +12,29 @@ def main():
 
     b_mat = np.array( [3.0, 2.0, 1.0, 1.5] )
 
+
+
+    # The phenomena described in 
+    # M. Embree
+    # The tortoise and the hare restart GMRES
+    # SIAM Review, 45 (2) (2003), pp. 256-266 
+    #=====================================================================================
+    # GMRES with restart, 1 iterations in each restart ( GMRES(1) )
+    #GMRES_test_itr2 = GMRES.GMRES_API( A_mat, b_mat, 1) # Converged, the fastest
+
     # GMRES with restart, 2 iterations in each restart ( GMRES(2) )
-    GMRES_test_itr2 = GMRES.GMRES_API( A_mat, b_mat, 2, 0.01)
-    x_mat = np.array( [1.0, 1.0, 1.0] )
+    #GMRES_test_itr2 = GMRES.GMRES_API( A_mat, b_mat, 2) # Converged, but not the festest
+
+    # GMRES with restart, 3 iterations in each restart ( GMRES(3) )
+    #GMRES_test_itr2 = GMRES.GMRES_API( A_mat, b_mat, 3) # This will explode
+
+    # GMRES with restart, 4 iterations in each restart ( GMRES(4) )
+    GMRES_test_itr2 = GMRES.GMRES_API( A_mat, b_mat, 4) # This will explode
+    #=====================================================================================
+
+
+
+    x_mat = np.array( [1.0, 1.0, 1.0, 1.0] )
     print("x  =", x_mat)
 
 
@@ -23,7 +43,7 @@ def main():
     restarted_GMRES = RestartAlgorithm.RestartAlgorithm()
     restarted_GMRES.kernel_algorithm_register( GMRES_test_itr2 )
     restarted_GMRES.restart_initial_input( x_mat )
-    restarted_GMRES.maximum_restarting_iteration_register( 35 )
+    restarted_GMRES.maximum_restarting_iteration_register( 150 )
     x_final, r_trend = restarted_GMRES.run_restart()
     #=============================================================
 
