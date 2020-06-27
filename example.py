@@ -23,7 +23,7 @@ def main():
     #GMRES_test_itr2 = GMRES.GMRES_API( A_mat, b_mat, 1) # Converged, the fastest
 
     # GMRES with restart, 2 iterations in each restart ( GMRES(2) )
-    #GMRES_test_itr2 = GMRES.GMRES_API( A_mat, b_mat, 2) # Converged, but not the festest
+    #GMRES_test_itr2 = GMRES.GMRES_API( A_mat, b_mat, 2) # Converged, but not the fastest
 
     # GMRES with restart, 3 iterations in each restart ( GMRES(3) )
     #GMRES_test_itr2 = GMRES.GMRES_API( A_mat, b_mat, 3) # This will explode
