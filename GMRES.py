@@ -16,11 +16,16 @@ class GMRES_API(object):
 
         self.x = x_input_vector_initial_guess
 
-        if len( self.x ) != len( self.b ):
+        try:
+            assert( len( self.x ) == len( self.b ) )
+
+        except Exception:
+
             print(" The input guess vector's size must equal to the system's size !\n")
             print(" The matrix system's size == ", len( self.b ))
             print(" Your input vector's size == ", len( self.x ))
-            raise ValueError
+            self.x = np.zeros( len( self.b ) ) 
+            print(" Use default input guess vector = ", self.x, " instead of the incorrect vector you given !\n")
 
 
     def run( self ):
