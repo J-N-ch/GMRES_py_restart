@@ -17,7 +17,7 @@ class GMRES_API(object):
         self.x = x_input_vector_initial_guess
 
         try:
-            assert( len( self.x ) == len( self.b ) )
+            assert len( self.x ) is len( self.b )
 
         except Exception:
 
