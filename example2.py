@@ -37,23 +37,23 @@ def main():
     # M. Embree
     # The tortoise and the hare restart GMRES
     # SIAM Review, 45 (2) (2003), pp. 256-266 
-    #=====================================================================================
+    #===============================================================
     # GMRES with restart, 1 iterations in each restart ( GMRES(1) )
-    #GMRES_test_itr2 = GMRES.GMRES_API( A_mat, b_mat, 1) # Converged, the fastest
     x_final_1, r_trend_1 = GMRES_test( A_mat, b_mat, x_mat, 1 )
+    # Converged, the fastest
 
     # GMRES with restart, 2 iterations in each restart ( GMRES(2) )
-    #GMRES_test_itr2 = GMRES.GMRES_API( A_mat, b_mat, 2) # Converged, but not the fastest
     x_final_2, r_trend_2 = GMRES_test( A_mat, b_mat, x_mat, 2 )
+    # Converged, but not the fastest
 
     # GMRES with restart, 3 iterations in each restart ( GMRES(3) )
-    #GMRES_test_itr2 = GMRES.GMRES_API( A_mat, b_mat, 3) # This will explode
     #x_final_3, r_trend_3 = GMRES_test( A_mat, b_mat, x_mat, 3 )
+    # This will explode
 
     # GMRES with restart, 4 iterations in each restart ( GMRES(4) )
-    # GMRES_test_itr2 = GMRES.GMRES_API( A_mat, b_mat, 4) # This will explode
     #x_final_4, r_trend_4 = GMRES_test( A_mat, b_mat, x_mat, 4 )
-    #=====================================================================================
+    # This will explode
+    #===============================================================
 
     xx = np.matmul( np.linalg.inv(A_mat), b_mat )
     print("ANS : xx =", xx) 
@@ -70,7 +70,6 @@ def main():
     #plt.plot(r_trend_4[0:max_restart_shown])
     plt.show()
     #============================================
-
 
 
 
