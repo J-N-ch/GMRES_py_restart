@@ -36,6 +36,7 @@ def main():
     x_final, r_trend = restarted_GMRES.run_restart()
     #=============================================================
 
+    print("x_final = ", x_final)
     xx = np.matmul( np.linalg.inv(A_mat), b_mat )
     print("ANS : xx =", xx) 
 
