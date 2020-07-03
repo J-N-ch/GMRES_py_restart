@@ -18,13 +18,22 @@ def main():
                       ] )
 
     # GMRES with restart, 2 iterations in each restart ( GMRES(2) )
-    GMRES_test_itr2 = GMRES.GMRES_API( A_mat, b_mat, 2, 0.01)
+    GMRES_test_itr2 = GMRES.GMRES_API( A_mat, b_mat, 2)
     x_mat = np.array( [
                        1.0,
                        1.0,
                        1.0,
                       ] )
     print("x  =", x_mat)
+
+    # The algorithm of GMRES without using restart
+    #======================================================================
+    size_of_matrix_A = len( A_mat )
+    original_GMRES_test = GMRES.GMRES_API( A_mat, b_mat, size_of_matrix_A )
+    original_GMRES_test.initial_guess_input( x_mat )
+    original_GMRES_final_x = original_GMRES_test.run()
+    print("original_GMRES_final_x = ", original_GMRES_final_x)
+    #======================================================================
 
 
     # The restatrt algorithm of GMRES

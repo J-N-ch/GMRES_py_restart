@@ -73,6 +73,7 @@ class GMRES_API(object):
             
             # save the error
             self.e = np.append(self.e, self.error)
+            #print("error = ", self.e)
 
             if( self.error <= self.threshold):
                 break
