@@ -4,12 +4,12 @@ class GMRES_API(object):
     def __init__( self,
                   A_coefficient_matrix: np.array([], dtype = float ),
                   b_boundary_condition_vector: np.array([], dtype = float ),
-                  maximum_number_of_bases_used: int,
+                  maximum_number_of_basis_used: int,
                   threshold = 1.0e-16 ):
 
         self.A = A_coefficient_matrix
         self.b = b_boundary_condition_vector
-        self.maximum_number_of_bases_used = maximum_number_of_bases_used
+        self.maximum_number_of_basis_used = maximum_number_of_basis_used
         self.threshold = threshold
 
     def initial_guess_input( self, x_input_vector_initial_guess: np.array([], dtype = float ) ):
@@ -32,7 +32,7 @@ class GMRES_API(object):
 
         self.n = int( np.sqrt(np.size( self.A )) )
 
-        self.m = self.maximum_number_of_bases_used
+        self.m = self.maximum_number_of_basis_used
 
         self.r = self.b - np.dot(self.A , self.x)
 
