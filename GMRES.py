@@ -35,10 +35,12 @@ class GMRES_API(object):
         self.m = self.maximum_number_of_basis_used
 
         self.r = self.b - np.dot(self.A , self.x)
+        self.r_norm = np.linalg.norm( self.r )
 
         self.b_norm = np.linalg.norm( self.b )
 
         self.error = np.linalg.norm( self.r ) / self.b_norm
+        self.e = [self.error]
         
         # initialize the 1D vectors 
         self.sn = np.zeros( self.m )
@@ -46,8 +48,7 @@ class GMRES_API(object):
         self.e1 = np.zeros( self.m + 1 )
         self.e1[0] = 1.0
 
-        self.e = [self.error]
-        self.r_norm = np.linalg.norm( self.r )
+
 
         self.H = np.zeros((self.m+1, self.m+1))
 
@@ -84,6 +85,8 @@ class GMRES_API(object):
         #self.y = np.matmul( np.linalg.inv(self.H[0:k+1, 0:k+1]), self.beta[0:k+1] )
 
         self.x = self.x + np.matmul(self.Q[:,0:k+1], self.y)
+
+        self.final_residual_norm = np.linalg.norm( self.b - np.matmul( self.A, self.x ) )
 
         return self.x
 
@@ -149,7 +152,5 @@ class GMRES_API(object):
         return x
 
     def final_residual_info_show( self ):
-        final_residual_norm = np.linalg.norm( self.b - np.matmul( self.A, self.x ) )
-        print("x  =", self.x, "residual_norm =  ", final_residual_norm ) 
-        return final_residual_norm
+        print("x  =", self.x, "residual_norm =  ", self.final_residual_norm ) 
     

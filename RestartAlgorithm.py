@@ -2,7 +2,8 @@ import numpy as np
 
 class RestartAlgorithm(object):
     def __init__( self ):
-        pass
+        # The default iteration's ending threshold 
+        self.restarting_iteration_ending_threshold = 1.0e-16 
 
     def kernel_algorithm_register( self, kernel_algorithm ):
         self.k_algo = kernel_algorithm
@@ -14,6 +15,9 @@ class RestartAlgorithm(object):
     def maximum_restarting_iteration_register( self, maximum_restarting_iteration ):
         self.max_rst_iter = maximum_restarting_iteration
         #print(self.max_rst_iter)
+
+    def restarting_iteration_ending_threshold_register( self, restarting_iteration_ending_threshold ):
+        self.restarting_iteration_ending_threshold = restarting_iteration_ending_threshold 
 
     def run_restart( self ):
          
@@ -29,8 +33,13 @@ class RestartAlgorithm(object):
             self.init_in = self.restart_output
 
             print( restart_counter+1, ": ", end = '' )
+            self.k_algo.final_residual_info_show() 
+            
+            self.final_residual_trend = np.append( self.final_residual_trend, self.k_algo.final_residual_norm )
 
-            self.final_residual_trend = np.append( self.final_residual_trend, self.k_algo.final_residual_info_show() )
-             
+            if( self.k_algo.final_residual_norm < self.restarting_iteration_ending_threshold ): 
+                print("\nThe restarting iteration's ending threshold ",self.restarting_iteration_ending_threshold," has been reached !\n")
+                break
+
         return self.restart_output, self.final_residual_trend
 
