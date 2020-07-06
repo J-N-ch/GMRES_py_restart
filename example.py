@@ -48,7 +48,6 @@ def main():
     x_final, r_trend = restarted_GMRES.run_restart()
     #=========================================================================
 
-
     print("  original_GMRES_final_x = ", original_GMRES_final_x, "residual_norm = ", original_GMRES_test.final_residual_norm)
     print("restarting_GMRES_final_x = ", x_final, "residual_norm = ", GMRES_test_itr2.final_residual_norm)
     xx = np.matmul( np.linalg.inv(A_mat), b_mat )
