@@ -41,9 +41,14 @@ class RestartAlgorithm(object):
                 if( self.k_algo.final_residual_norm < self.restarting_iteration_ending_threshold ): 
                     print("\nThe restarting iteration's ending threshold ",self.restarting_iteration_ending_threshold," has been reached !\n")
                     break
-        #except Exception:
+
         except:
             print("\n !! ERROR !! Some parameters stiil have not been registered !!!\n")
+            if 'self.k_algo' not in locals():
+                print(" Please use \"kernel_algorithm_register( <your_kernel_algorithm> )\" to register a kernel algorithm !!\n")
+
+            if 'self.init_in' not in locals():
+                print(" Please use \"restart_initial_input( <your_initial_input_vector> )\" to register a initial input-vector !!\n")
 
         finally:
             return self.restart_output, self.final_residual_trend
