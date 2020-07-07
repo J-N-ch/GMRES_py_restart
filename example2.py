@@ -1,6 +1,11 @@
 import numpy as np
+
+import sys
+sys.path.append('./GMRES_API')
 import GMRES
+sys.path.append('./RestartAlgorithm_API')
 import RestartAlgorithm
+
 from matplotlib import pyplot as plt 
 
 def GMRES_test( A_mat, b_mat, x_mat, iterations_between_restarts ):

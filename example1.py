@@ -1,6 +1,11 @@
 import numpy as np
+
+import sys
+sys.path.append('./GMRES_API')
 import GMRES
+sys.path.append('./RestartAlgorithm_API')
 import RestartAlgorithm
+
 from matplotlib import pyplot as plt 
 
 def main():
