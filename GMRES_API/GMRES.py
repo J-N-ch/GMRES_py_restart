@@ -59,9 +59,9 @@ class GMRES_API(object):
         
         for k in range(m):
 
-            ( self.H[0:k+2, k], self.Q[:, k+1] ) = self.arnoldi( self.A, self.Q, k)
+            ( self.H[0:k+2, k], self.Q[:, k+1] ) = __class__.arnoldi( self.A, self.Q, k)
 
-            ( self.H[0:k+2, k], cs[k], sn[k] ) = self.apply_givens_rotation(self.H[0:k+2, k], cs, sn, k)
+            ( self.H[0:k+2, k], cs[k], sn[k] )   = __class__.apply_givens_rotation(self.H[0:k+2, k], cs, sn, k)
             
             # update the residual vector
             beta[k+1] = -sn[k] * beta[k]
@@ -78,7 +78,7 @@ class GMRES_API(object):
 
         # calculate the result
         #TODO Due to self.H[0:k+1, 0:k+1] being a upper tri-matrix, we can exploit this fact. 
-        self.y = self.__back_substitution( self.H[0:k+1, 0:k+1], beta[0:k+1] )
+        self.y = __class__.__back_substitution( self.H[0:k+1, 0:k+1], beta[0:k+1] )
         #self.y = np.matmul( np.linalg.inv(self.H[0:k+1, 0:k+1]), beta[0:k+1] )
 
         self.x = self.x + np.matmul(self.Q[:,0:k+1], self.y)
@@ -91,7 +91,8 @@ class GMRES_API(object):
     '''''''''''''''''''''''''''''''''''
     '        Arnoldi Function         '
     '''''''''''''''''''''''''''''''''''
-    def arnoldi( self, A, Q, k):
+    @staticmethod
+    def arnoldi(  A, Q, k):
         h = np.zeros( k+2 )
         q = np.dot( A, Q[:,k] )
         for i in range (k+1):
@@ -104,13 +105,14 @@ class GMRES_API(object):
     '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
     '           Applying Givens Rotation to H col           '
     '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-    def apply_givens_rotation( self, h, cs, sn, k ):
+    @staticmethod
+    def apply_givens_rotation( h, cs, sn, k ):
         for i in range( k-1 ):
             temp   =  cs[i] * h[i] + sn[i] * h[i+1]
             h[i+1] = -sn[i] * h[i] + cs[i] * h[i+1]
             h[i]   = temp
         # update the next sin cos values for rotation
-        [ cs_k, sn_k ] = self.givens_rotation( h[k-1], h[k] )
+        [ cs_k, sn_k ] = __class__.givens_rotation( h[k-1], h[k] )
         
         # eliminate H[ i + 1, i ]
         h[k] = cs_k * h[k] + sn_k * h[k + 1]
@@ -118,7 +120,8 @@ class GMRES_API(object):
         return h, cs_k, sn_k
 
     ##----Calculate the Given rotation matrix----##
-    def givens_rotation( self, v1, v2 ):
+    @staticmethod
+    def givens_rotation( v1, v2 ):
         if(v1 == 0):
             cs = 0
             sn = 1
@@ -129,7 +132,8 @@ class GMRES_API(object):
         return cs, sn
 
     # From https://stackoverflow.com/questions/47551069/back-substitution-in-python
-    def __back_substitution(self, A: np.ndarray, b: np.ndarray) -> np.ndarray:
+    @staticmethod
+    def __back_substitution( A: np.ndarray, b: np.ndarray) -> np.ndarray:
         n = b.size
         x = np.zeros_like(b)
 
