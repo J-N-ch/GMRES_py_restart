@@ -30,9 +30,8 @@ class GMRES_API(object):
 
     def run( self ):
 
-        self.n = int( np.sqrt(np.size( self.A )) )
-
-        self.m = self.maximum_number_of_basis_used
+        n = int( np.sqrt(np.size( self.A )) )
+        m = self.maximum_number_of_basis_used
 
         self.r = self.b - np.dot(self.A , self.x)
         self.r_norm = np.linalg.norm( self.r )
@@ -43,23 +42,23 @@ class GMRES_API(object):
         self.e = [self.error]
         
         # initialize the 1D vectors 
-        self.sn = np.zeros( self.m )
-        self.cs = np.zeros( self.m )
-        self.e1 = np.zeros( self.m + 1 )
+        self.sn = np.zeros( m )
+        self.cs = np.zeros( m )
+        self.e1 = np.zeros( m + 1 )
         self.e1[0] = 1.0
 
 
 
-        self.H = np.zeros((self.m+1, self.m+1))
+        self.H = np.zeros( (m+1, m+1) )
 
-        self.Q = np.zeros((self.n, self.m+1))
+        self.Q = np.zeros( (  n, m+1) )
         self.Q[:,0] = self.r / self.r_norm
         self.Q_norm = np.linalg.norm( self.Q )
 
         self.beta = self.r_norm * self.e1 
         # beta is the beta vector instead of the beta scalar
         
-        for k in range(self.m):
+        for k in range(m):
 
             ( self.H[0:k+2, k], self.Q[:, k+1] ) = self.arnoldi( self.A, self.Q, k)
 
@@ -74,7 +73,6 @@ class GMRES_API(object):
             
             # save the error
             self.e = np.append(self.e, self.error)
-            #print("error = ", self.e)
 
             if( self.error <= self.threshold):
                 break
