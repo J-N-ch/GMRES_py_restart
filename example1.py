@@ -17,6 +17,8 @@ def main():
 
     b_mat = np.array( [3.0, 2.0, 1.0, 1.5] )
 
+    x_mat = np.array( [1.0, 1.0, 1.0, 1.0] )
+    print("x  =", x_mat)
 
 
     # The phenomena described in 
@@ -38,29 +40,25 @@ def main():
     #=====================================================================================
 
 
-
-    x_mat = np.array( [1.0, 1.0, 1.0, 1.0] )
-    print("x  =", x_mat)
-
-
     # The restatrt algorithm of GMRES
-    #=============================================================
+    #==========================================================================
     restarted_GMRES = RestartAlgorithm.RestartAlgorithm()
     restarted_GMRES.kernel_algorithm_register( GMRES_test_itr2 )
     restarted_GMRES.restart_initial_input( x_mat )
     restarted_GMRES.maximum_restarting_iteration_register( 150 )
+    restarted_GMRES.restarting_iteration_ending_threshold_register( 1.0e-15 )
     x_final, r_trend = restarted_GMRES.run_restart()
-    #=============================================================
+    #==========================================================================
 
 
     # Draw the residual trend by the sequence of restarts
-    #============================================
+    #====================================================
     plt.title("restarted_GMRES_residual_trend") 
     plt.xlabel("restart") 
     plt.ylabel("residual") 
-    plt.plot(r_trend)
+    plt.plot(r_trend[0:130])
     plt.show()
-    #============================================
+    #====================================================
 
 
     xx = np.matmul( np.linalg.inv(A_mat), b_mat )
