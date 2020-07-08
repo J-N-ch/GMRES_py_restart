@@ -30,46 +30,45 @@ class GMRES_API(object):
 
     def run( self ):
 
-        n = int( np.sqrt(np.size( self.A )) )
+        n = len( self.A )
         m = self.maximum_number_of_basis_used
 
-        self.r = self.b - np.dot(self.A , self.x)
-        self.r_norm = np.linalg.norm( self.r )
+        r = self.b - np.dot(self.A , self.x)
+        r_norm = np.linalg.norm( r )
 
-        self.b_norm = np.linalg.norm( self.b )
+        b_norm = np.linalg.norm( self.b )
 
-        self.error = np.linalg.norm( self.r ) / self.b_norm
+        self.error = np.linalg.norm( r ) / b_norm
         self.e = [self.error]
         
         # initialize the 1D vectors 
-        self.sn = np.zeros( m )
-        self.cs = np.zeros( m )
-        self.e1 = np.zeros( m + 1 )
-        self.e1[0] = 1.0
+        sn = np.zeros( m )
+        cs = np.zeros( m )
+        e1 = np.zeros( m + 1 )
+        e1[0] = 1.0
+
+        beta = r_norm * e1 
+        # beta is the beta vector instead of the beta scalar
 
 
-
-        self.H = np.zeros( (m+1, m+1) )
-
-        self.Q = np.zeros( (  n, m+1) )
-        self.Q[:,0] = self.r / self.r_norm
+        self.H = np.zeros( ( m+1, m+1 ) )
+        self.Q = np.zeros( (   n, m+1 ) )
+        self.Q[:,0] = r / r_norm
         self.Q_norm = np.linalg.norm( self.Q )
 
-        self.beta = self.r_norm * self.e1 
-        # beta is the beta vector instead of the beta scalar
         
         for k in range(m):
 
             ( self.H[0:k+2, k], self.Q[:, k+1] ) = self.arnoldi( self.A, self.Q, k)
 
-            ( self.H[0:k+2, k], self.cs[k], self.sn[k] ) = self.apply_givens_rotation(self.H[0:k+2, k], self.cs, self.sn, k)
+            ( self.H[0:k+2, k], cs[k], sn[k] ) = self.apply_givens_rotation(self.H[0:k+2, k], cs, sn, k)
             
             # update the residual vector
-            self.beta[k+1] = -self.sn[k] * self.beta[k]
-            self.beta[k]   =  self.cs[k] * self.beta[k]
+            beta[k+1] = -sn[k] * beta[k]
+            beta[k]   =  cs[k] * beta[k]
 
             # calcilate the error
-            self.error = abs(self.beta[k+1]) / self.b_norm
+            self.error = abs(beta[k+1]) / b_norm
             
             # save the error
             self.e = np.append(self.e, self.error)
@@ -79,8 +78,8 @@ class GMRES_API(object):
 
         # calculate the result
         #TODO Due to self.H[0:k+1, 0:k+1] being a upper tri-matrix, we can exploit this fact. 
-        self.y = self.__back_substitution( self.H[0:k+1, 0:k+1], self.beta[0:k+1] )
-        #self.y = np.matmul( np.linalg.inv(self.H[0:k+1, 0:k+1]), self.beta[0:k+1] )
+        self.y = self.__back_substitution( self.H[0:k+1, 0:k+1], beta[0:k+1] )
+        #self.y = np.matmul( np.linalg.inv(self.H[0:k+1, 0:k+1]), beta[0:k+1] )
 
         self.x = self.x + np.matmul(self.Q[:,0:k+1], self.y)
 
