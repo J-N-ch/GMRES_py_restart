@@ -50,38 +50,34 @@ class GMRES_API(object):
         beta = r_norm * e1 
         # beta is the beta vector instead of the beta scalar
 
-
-        self.H = np.zeros( ( m+1, m+1 ) )
-        self.Q = np.zeros( (   n, m+1 ) )
-        self.Q[:,0] = r / r_norm
-        self.Q_norm = np.linalg.norm( self.Q )
-
+        H = np.zeros( ( m+1, m+1 ) )
+        Q = np.zeros( (   n, m+1 ) )
+        Q[:,0] = r / r_norm
         
+
         for k in range(m):
 
-            ( self.H[0:k+2, k], self.Q[:, k+1] ) = __class__.arnoldi( self.A, self.Q, k)
-
-            ( self.H[0:k+2, k], cs[k], sn[k] )   = __class__.apply_givens_rotation(self.H[0:k+2, k], cs, sn, k)
+            ( H[0:k+2, k], Q[:, k+1] )    = __class__.arnoldi( self.A, Q, k)
+            ( H[0:k+2, k], cs[k], sn[k] ) = __class__.apply_givens_rotation( H[0:k+2, k], cs, sn, k)
             
             # update the residual vector
             beta[k+1] = -sn[k] * beta[k]
             beta[k]   =  cs[k] * beta[k]
 
-            # calcilate the error
+            # calculate and save the errors
             self.error = abs(beta[k+1]) / b_norm
-            
-            # save the error
             self.e = np.append(self.e, self.error)
 
             if( self.error <= self.threshold):
                 break
 
-        # calculate the result
-        #TODO Due to self.H[0:k+1, 0:k+1] being a upper tri-matrix, we can exploit this fact. 
-        self.y = __class__.__back_substitution( self.H[0:k+1, 0:k+1], beta[0:k+1] )
-        #self.y = np.matmul( np.linalg.inv(self.H[0:k+1, 0:k+1]), beta[0:k+1] )
 
-        self.x = self.x + np.matmul(self.Q[:,0:k+1], self.y)
+        # calculate the result
+        #TODO Due to H[0:k+1, 0:k+1] being a upper tri-matrix, we can exploit this fact. 
+        y = __class__.__back_substitution( H[0:k+1, 0:k+1], beta[0:k+1] )
+        #y = np.matmul( np.linalg.inv( H[0:k+1, 0:k+1]), beta[0:k+1] )
+
+        self.x = self.x + np.matmul( Q[:,0:k+1], y )
 
         self.final_residual_norm = np.linalg.norm( self.b - np.matmul( self.A, self.x ) )
 
