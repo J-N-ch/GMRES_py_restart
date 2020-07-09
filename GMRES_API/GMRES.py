@@ -50,10 +50,9 @@ class GMRES_API(object):
         beta = r_norm * e1 
         # beta is the beta vector instead of the beta scalar
 
-        H = np.zeros( ( m+1, m+1 ) )
-        Q = np.zeros( (   n, m+1 ) )
+        H = np.zeros(( m+1, m+1 ))
+        Q = np.zeros((   n, m+1 ))
         Q[:,0] = r / r_norm
-        
 
         for k in range(m):
 
@@ -61,8 +60,8 @@ class GMRES_API(object):
             ( H[0:k+2, k], cs[k], sn[k] ) = __class__.apply_givens_rotation( H[0:k+2, k], cs, sn, k)
             
             # update the residual vector
-            beta[k+1] = -sn[k] * beta[k]
-            beta[k]   =  cs[k] * beta[k]
+            beta[ k+1 ] = -sn[k] * beta[k]
+            beta[ k   ] =  cs[k] * beta[k]
 
             # calculate and save the errors
             self.error = abs(beta[k+1]) / b_norm
@@ -73,9 +72,10 @@ class GMRES_API(object):
 
 
         # calculate the result
+        #y = np.matmul( np.linalg.inv( H[0:k+1, 0:k+1]), beta[0:k+1] )
         #TODO Due to H[0:k+1, 0:k+1] being a upper tri-matrix, we can exploit this fact. 
         y = __class__.__back_substitution( H[0:k+1, 0:k+1], beta[0:k+1] )
-        #y = np.matmul( np.linalg.inv( H[0:k+1, 0:k+1]), beta[0:k+1] )
+
 
         self.x = self.x + np.matmul( Q[:,0:k+1], y )
 
@@ -88,14 +88,14 @@ class GMRES_API(object):
     '        Arnoldi Function         '
     '''''''''''''''''''''''''''''''''''
     @staticmethod
-    def arnoldi(  A, Q, k):
+    def arnoldi( A, Q, k ):
         h = np.zeros( k+2 )
         q = np.dot( A, Q[:,k] )
-        for i in range (k+1):
+        for i in range ( k+1 ):
             h[i] = np.dot( q, Q[:,i])
             q = q - h[i] * Q[:, i]
-        h[k + 1] = np.linalg.norm(q)
-        q = q / h[k + 1]
+        h[ k+1 ] = np.linalg.norm(q)
+        q = q / h[ k+1 ]
         return h, q 
 
     '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -107,6 +107,7 @@ class GMRES_API(object):
             temp   =  cs[i] * h[i] + sn[i] * h[i+1]
             h[i+1] = -sn[i] * h[i] + cs[i] * h[i+1]
             h[i]   = temp
+
         # update the next sin cos values for rotation
         [ cs_k, sn_k ] = __class__.givens_rotation( h[k-1], h[k] )
         
@@ -122,7 +123,7 @@ class GMRES_API(object):
             cs = 0
             sn = 1
         else:
-            t = np.sqrt(v1**2 + v2**2)
+            t = np.sqrt( v1**2 + v2**2 )
             cs = abs(v1) / t
             sn = cs * v2 / v1
         return cs, sn
@@ -131,23 +132,46 @@ class GMRES_API(object):
     @staticmethod
     def __back_substitution( A: np.ndarray, b: np.ndarray) -> np.ndarray:
         n = b.size
-        x = np.zeros_like(b)
-
         if A[n-1, n-1] == 0:
             raise ValueError
 
-        x[n-1] = b[n-1]/A[n-1, n-1]
-        C = np.zeros((n,n))
-        for i in range(n-2, -1, -1):
+        x = np.zeros_like(b)
+        x[n-1] = b[n-1] / A[n-1, n-1]
+        for i in range( n-2, -1, -1 ):
             bb = 0
-            for j in range (i+1, n):
-                bb += A[i, j]*x[j]
-
-            C[i, i] = b[i] - bb
-            x[i] = C[i, i]/A[i, i]
-
+            for j in range ( i+1, n ):
+                bb += A[i, j] * x[j]
+            x[i] = (b[i] - bb) / A[i, i]
         return x
 
+
     def final_residual_info_show( self ):
-        print("x  =", self.x, "residual_norm =  ", self.final_residual_norm ) 
+        print( "x  =", self.x, "residual_norm =  ", self.final_residual_norm ) 
     
+def main():
+
+    A_mat = np.array( [[1.00, 1.00, 1.00],
+                       [1.00, 2.00, 1.00],
+                       [0.00, 0.00, 3.00]] )
+
+    b_mat = np.array( [3.0, 2.0, 1.0] )
+
+    GMRES_test_itr2 = GMRES_API( A_mat, b_mat, 2, 0.01)
+
+    x_mat = np.array( [1.0, 1.0, 1.0] )
+    print("x  =", x_mat)
+
+    # GMRES with restart, 2 iterations in each restart ( GMRES(2) )
+    max_restart_counts = 100
+    for restart_counter in range(max_restart_counts):
+        GMRES_test_itr2.initial_guess_input( x_mat )
+
+        x_mat = GMRES_test_itr2.run()
+        print(restart_counter+1," : x  =", x_mat)
+
+    xx = np.matmul( np.linalg.inv(A_mat), b_mat )
+    print("ANS : xx =", xx) 
+
+
+if __name__ == '__main__':
+    main()
