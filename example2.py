@@ -8,7 +8,7 @@ import RestartAlgorithm
 
 from matplotlib import pyplot as plt 
 
-def GMRES_test( A_mat, b_mat, x_mat, iterations_between_restarts ):
+def GMRES_test( A_mat, b_mat, x_mat, iterations_between_restarts,restarting_iteration_ending_threshold ):
     print("\n")
 
     # The restatrt algorithm of GMRES
@@ -17,6 +17,7 @@ def GMRES_test( A_mat, b_mat, x_mat, iterations_between_restarts ):
     restarted_GMRES.kernel_algorithm_register( GMRES.GMRES_API( A_mat, b_mat, iterations_between_restarts ) )
     restarted_GMRES.restart_initial_input( x_mat )
     restarted_GMRES.maximum_restarting_iteration_register( 150 )
+    restarted_GMRES.restarting_iteration_ending_threshold_register( restarting_iteration_ending_threshold )
     # x_final, r_trend = restarted_GMRES.run_restart()
     return  restarted_GMRES.run_restart()
     #=========================================================================================================
@@ -32,9 +33,7 @@ def main():
 
     b_mat = np.array( [3.0, 2.0, 1.0, 1.5] )
 
-    #x_mat = np.array( [1.0, 1.0, 1.0, 1.0] )
-    #x_mat = np.array( [ 0.61081403, 0.03815901, -0.27916169, 0.71694103] )
-    x_mat = np.array( [ 0.611, 0.043, -0.279, 0.71] )
+    x_mat = np.array( [1.0, 1.0, 1.0, 1.0] )
     print("x  =", x_mat)
 
 
@@ -44,19 +43,19 @@ def main():
     # SIAM Review, 45 (2) (2003), pp. 256-266 
     #===============================================================
     # GMRES with restart, 1 iterations in each restart ( GMRES(1) )
-    x_final_1, r_trend_1 = GMRES_test( A_mat, b_mat, x_mat, 1 )
+    x_final_1, r_trend_1 = GMRES_test( A_mat, b_mat, x_mat, 1, 1.0e-15 )
     # Converged, the fastest
 
     # GMRES with restart, 2 iterations in each restart ( GMRES(2) )
-    x_final_2, r_trend_2 = GMRES_test( A_mat, b_mat, x_mat, 2 )
+    x_final_2, r_trend_2 = GMRES_test( A_mat, b_mat, x_mat, 2, 1.0e-15 )
     # Converged, but not the fastest
 
     # GMRES with restart, 3 iterations in each restart ( GMRES(3) )
-    #x_final_3, r_trend_3 = GMRES_test( A_mat, b_mat, x_mat, 3 )
-    # This will explode
+    x_final_3, r_trend_3 = GMRES_test( A_mat, b_mat, x_mat, 3, 1.0e-15 )
+    # This almost explode
 
     # GMRES with restart, 4 iterations in each restart ( GMRES(4) )
-    #x_final_4, r_trend_4 = GMRES_test( A_mat, b_mat, x_mat, 4 )
+    #x_final_4, r_trend_4 = GMRES_test( A_mat, b_mat, x_mat, 4, 1.0e-15 )
     # This will explode
     #===============================================================
 
@@ -68,10 +67,10 @@ def main():
     plt.title("restarted_GMRES_residual_trend") 
     plt.xlabel("restart") 
     plt.ylabel("residual") 
-    max_restart_shown = 15
+    max_restart_shown = 150
     plt.plot(r_trend_1[0:max_restart_shown])
     plt.plot(r_trend_2[0:max_restart_shown])
-    #plt.plot(r_trend_3[0:max_restart_shown])
+    plt.plot(r_trend_3[0:max_restart_shown])
     #plt.plot(r_trend_4[0:max_restart_shown])
     plt.show()
     #============================================

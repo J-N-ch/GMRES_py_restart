@@ -51,7 +51,7 @@ def main():
     restarted_GMRES.kernel_algorithm_register( GMRES_test_itr2 )
     restarted_GMRES.restart_initial_input( x_mat )
     restarted_GMRES.maximum_restarting_iteration_register( 350 )
-    restarted_GMRES.restarting_iteration_ending_threshold_register( 1.0e-15 )
+    restarted_GMRES.restarting_iteration_ending_threshold_register( 1.0e-14 )
     x_final, r_trend = restarted_GMRES.run_restart()
     #=========================================================================
 

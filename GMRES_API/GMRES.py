@@ -1,4 +1,5 @@
 import numpy as np
+import math
 
 class GMRES_API(object):
     def __init__( self,
@@ -17,7 +18,7 @@ class GMRES_API(object):
         self.x = x_input_vector_initial_guess
 
         try:
-            assert len( self.x ) is len( self.b )
+            assert len( self.x ) == len( self.b )
 
         except Exception:
 
@@ -109,30 +110,45 @@ class GMRES_API(object):
             h[i]   = temp
 
         # update the next sin cos values for rotation
-        [ cs_k, sn_k ] = __class__.givens_rotation( h[k-1], h[k] )
+        cs_k, sn_k, h[k] = __class__.givens_rotation( h[k-1], h[k] )
         
-        # eliminate H[ i + 1, i ]
-        h[k] = cs_k * h[k] + sn_k * h[k + 1]
+        # eliminate H[ k+1, i ]
         h[k + 1] = 0.0
+
         return h, cs_k, sn_k
 
     ##----Calculate the Given rotation matrix----##
+    # From "http://www.netlib.org/lapack/lawnspdf/lawn150.pdf"
+    # The algorithm used by "Edward Anderson"
     @staticmethod
     def givens_rotation( v1, v2 ):
-        if(v1 == 0):
-            cs = 0
-            sn = 1
+        if( v2 == 0.0 ):
+            cs = np.sign(v1)
+            sn = 0.0
+            r = abs(v1)
+        elif( v1 == 0.0 ):
+            cs = 0.0
+            sn = np.sign(v2)
+            r = abs(v2)
+        elif( abs(v1) > abs(v2) ):
+            t = v2 / v1 
+            u = np.sign(v1) * math.hypot( 1.0, t )  
+            cs = 1.0 / u
+            sn = t * cs
+            r = v1 * u
         else:
-            t = np.sqrt( v1**2 + v2**2 )
-            cs = abs(v1) / t
-            sn = cs * v2 / v1
-        return cs, sn
+            t = v1 / v2 
+            u = np.sign(v2) * math.hypot( 1.0, t )  
+            sn = 1.0 / u
+            cs = t * sn
+            r = v2 * u
+        return cs, sn, r
 
     # From https://stackoverflow.com/questions/47551069/back-substitution-in-python
     @staticmethod
     def __back_substitution( A: np.ndarray, b: np.ndarray) -> np.ndarray:
         n = b.size
-        if A[n-1, n-1] == 0:
+        if A[n-1, n-1] == 0.0:
             raise ValueError
 
         x = np.zeros_like(b)
