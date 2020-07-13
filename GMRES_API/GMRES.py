@@ -1,6 +1,11 @@
 import numpy as np
 import math
 
+#testing = True
+testing = False
+#test_Givens_out_of_for_loop = False
+test_Givens_out_of_for_loop = True
+
 class GMRES_API(object):
     def __init__( self,
                   A_coefficient_matrix: np.array([], dtype = float ),
@@ -48,37 +53,64 @@ class GMRES_API(object):
         e1 = np.zeros( m + 1 )
         e1[0] = 1.0
 
-        beta = r_norm * e1 
         # beta is the beta vector instead of the beta scalar
+        beta = r_norm * e1 
+        if testing is True:
+            beta_test = r_norm * e1
+
 
         H = np.zeros(( m+1, m+1 ))
+        H_test = np.zeros(( m+1, m ))
+        UT_test = np.zeros(( m+1, m ))
+
         Q = np.zeros((   n, m+1 ))
         Q[:,0] = r / r_norm
 
+        #---------------------------------------------------------------------------------------------
         for k in range(m):
 
             ( H[0:k+2, k], Q[:, k+1] )    = __class__.arnoldi( self.A, Q, k)
-            ( H[0:k+2, k], cs[k], sn[k] ) = __class__.apply_givens_rotation( H[0:k+2, k], cs, sn, k)
-            
-            # update the residual vector
-            beta[ k+1 ] = -sn[k] * beta[k]
-            beta[ k   ] =  cs[k] * beta[k]
+            H_test[:,k] = H[:,k]
+            #print(H_test)
+            if test_Givens_out_of_for_loop is not True:
+                ( H[0:k+2, k], cs[k], sn[k] ) = __class__.apply_givens_rotation( H[0:k+2, k], cs, sn, k)
+                # update the residual vector
+                beta[ k+1 ] = -sn[k] * beta[k]
+                beta[ k   ] =  cs[k] * beta[k]
 
-            # calculate and save the errors
-            self.error = abs(beta[k+1]) / b_norm
-            self.e = np.append(self.e, self.error)
+                # calculate and save the errors
+                self.error = abs(beta[k+1]) / b_norm
+                self.e = np.append(self.e, self.error)
 
-            if( self.error <= self.threshold):
-                break
-
-
-        # calculate the result
-        #y = np.matmul( np.linalg.inv( H[0:k+1, 0:k+1]), beta[0:k+1] )
-        #TODO Due to H[0:k+1, 0:k+1] being a upper tri-matrix, we can exploit this fact. 
-        y = __class__.__back_substitution( H[0:k+1, 0:k+1], beta[0:k+1] )
+                if( self.error <= self.threshold):
+                    break
+        #---------------------------------------------------------------------------------------------
 
 
-        self.x = self.x + np.matmul( Q[:,0:k+1], y )
+        if testing is not True:
+            if test_Givens_out_of_for_loop is True:
+                for k in range(m):
+                    ( H_test[0:k+2, k], cs[k], sn[k] ) = __class__.apply_givens_rotation( H_test[0:k+2, k], cs, sn, k)
+                    # update the residual vector
+                    beta[ k+1 ] = -sn[k] * beta[k]
+                    beta[ k   ] =  cs[k] * beta[k]
+                y = __class__.__back_substitution( H_test[0:k+1, 0:k+1], beta[0:k+1] )
+
+            else:
+                # calculate the result
+                #y = np.matmul( np.linalg.inv( H[0:k+1, 0:k+1]), beta[0:k+1] )
+                #TODO Due to H[0:k+1, 0:k+1] being a upper tri-matrix, we can exploit this fact. 
+                y = __class__.__back_substitution( H[0:k+1, 0:k+1], beta[0:k+1] )
+
+
+            print("y =", y)
+            self.x = self.x + np.matmul( Q[:,0:k+1], y )
+
+        else:
+            y_test = np.linalg.lstsq(H_test[0:m+2, 0:m+1], beta_test)[0]
+            print("y_test =", y_test)
+
+            self.x = self.x + np.matmul( Q[:,0:k+1], y_test )
 
         self.final_residual_norm = np.linalg.norm( self.b - np.matmul( self.A, self.x ) )
 
@@ -160,6 +192,16 @@ class GMRES_API(object):
             x[i] = (b[i] - bb) / A[i, i]
         return x
 
+    '''
+    def lstsq_Givens(H_test, beta,  m):
+	for k in range(m):
+	    ( H_test[0:k+2, k], cs[k], sn[k] ) = __class__.apply_givens_rotation( H_test[0:k+2, k], cs, sn, k)
+	    # update the residual vector
+	    beta[ k+1 ] = -sn[k] * beta[k]
+	    beta[ k   ] =  cs[k] * beta[k]
+	y = __class__.__back_substitution( H_test[0:k+1, 0:k+1], beta[0:k+1] )
+    '''
+
 
     def final_residual_info_show( self ):
         print( "x  =", self.x, "residual_norm =  ", self.final_residual_norm ) 
@@ -172,7 +214,7 @@ def main():
 
     b_mat = np.array( [3.0, 2.0, 1.0] )
 
-    GMRES_test_itr2 = GMRES_API( A_mat, b_mat, 2, 0.01)
+    GMRES_itr2 = GMRES_API( A_mat, b_mat, 2, 0.01)
 
     x_mat = np.array( [1.0, 1.0, 1.0] )
     print("x  =", x_mat)
@@ -180,9 +222,9 @@ def main():
     # GMRES with restart, 2 iterations in each restart ( GMRES(2) )
     max_restart_counts = 100
     for restart_counter in range(max_restart_counts):
-        GMRES_test_itr2.initial_guess_input( x_mat )
+        GMRES_itr2.initial_guess_input( x_mat )
 
-        x_mat = GMRES_test_itr2.run()
+        x_mat = GMRES_itr2.run()
         print(restart_counter+1," : x  =", x_mat)
 
     xx = np.matmul( np.linalg.inv(A_mat), b_mat )
