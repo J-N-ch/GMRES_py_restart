@@ -1,8 +1,6 @@
 import numpy as np
 import math
 
-#testing = True
-testing = False
 #test_Givens_out_of_for_loop = False
 test_Givens_out_of_for_loop = True
 
@@ -55,8 +53,7 @@ class GMRES_API(object):
 
         # beta is the beta vector instead of the beta scalar
         beta = r_norm * e1 
-        if testing is True:
-            beta_test = r_norm * e1
+        beta_test = r_norm * e1
 
 
         H = np.zeros(( m+1, m+1 ))
@@ -87,30 +84,53 @@ class GMRES_API(object):
         #---------------------------------------------------------------------------------------------
 
 
-        if testing is not True:
-            if test_Givens_out_of_for_loop is True:
-                for k in range(m):
-                    ( H_test[0:k+2, k], cs[k], sn[k] ) = __class__.apply_givens_rotation( H_test[0:k+2, k], cs, sn, k)
-                    # update the residual vector
-                    beta[ k+1 ] = -sn[k] * beta[k]
-                    beta[ k   ] =  cs[k] * beta[k]
-                y = __class__.__back_substitution( H_test[0:k+1, 0:k+1], beta[0:k+1] )
+        if test_Givens_out_of_for_loop is True:
+                
+            # 1. My first GMRES written using Givens rotation to solve lstsq
+            #---------------------------------------------------------------------------------------------------------------------
+            H_Givens_test = np.copy(H_test)
+            for k in range(m):
+                ( H_Givens_test[0:k+2, k], cs[k], sn[k] ) = __class__.apply_givens_rotation( H_Givens_test[0:k+2, k], cs, sn, k)
+                # update the residual vector
+                beta[ k+1 ] = -sn[k] * beta[k]
+                beta[ k   ] =  cs[k] * beta[k]
+            #y = __class__.__back_substitution( H_Givens_test[0:k+1, 0:k+1], beta[0:k+1] )
+            #y = np.matmul( np.linalg.inv( H_Givens_test[0:k+1, 0:k+1]), beta[0:k+1] )
+            #y = np.linalg.lstsq(H_Givens_test[0:m+2, 0:m+1], beta)[0]
+            #---------------------------------------------------------------------------------------------------------------------
 
-            else:
-                # calculate the result
-                #y = np.matmul( np.linalg.inv( H[0:k+1, 0:k+1]), beta[0:k+1] )
-                #TODO Due to H[0:k+1, 0:k+1] being a upper tri-matrix, we can exploit this fact. 
-                y = __class__.__back_substitution( H[0:k+1, 0:k+1], beta[0:k+1] )
+            # 2. GMRES using QR decomposition to solve lstsq
+            #-----------------------------------------------------
+            H_QR_test = np.copy(H_test)
+            QR_q, QR_r = np.linalg.qr(H_QR_test, mode='reduced')
+            #print(QR_q)
+            #print(QR_r)
+            #print(beta)
+            new_beta = np.matmul(  QR_q.T, beta )
+            #print(new_beta)
+            #y = np.linalg.lstsq(QR_r,new_beta )[0]
+            #-----------------------------------------------------
 
+            # 3. GMRES directly using numpy.linalg.lstsq  to solve lstsq (the most success one until now !)
+            #-------------------------------------------------------------
+            y = np.linalg.lstsq(H_test[0:m+2, 0:m+1], beta_test)[0]
+            #print("HELLO", y-y_test)
+            #-------------------------------------------------------------
 
-            print("y =", y)
-            self.x = self.x + np.matmul( Q[:,0:k+1], y )
 
         else:
-            y_test = np.linalg.lstsq(H_test[0:m+2, 0:m+1], beta_test)[0]
-            print("y_test =", y_test)
+            # 1. My first GMRES written using Givens rotation to solve lstsq(but put the Givens with arnoldi)
+            #-----------------------------------------------------------------------------------
+            # calculate the result
+            #y = np.matmul( np.linalg.inv( H[0:k+1, 0:k+1]), beta[0:k+1] )
+            #TODO Due to H[0:k+1, 0:k+1] being a upper tri-matrix, we can exploit this fact. 
+            y = __class__.__back_substitution( H[0:k+1, 0:k+1], beta[0:k+1] )
+            #-----------------------------------------------------------------------------------
 
-            self.x = self.x + np.matmul( Q[:,0:k+1], y_test )
+
+        #print("y =", y)
+        self.x = self.x + np.matmul( Q[:,0:k+1], y )
+
 
         self.final_residual_norm = np.linalg.norm( self.b - np.matmul( self.A, self.x ) )
 
