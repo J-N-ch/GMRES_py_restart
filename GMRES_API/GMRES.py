@@ -114,8 +114,10 @@ class GMRES_API(object):
             # 3. GMRES directly using numpy.linalg.lstsq  to solve lstsq (the most success one until now !)
             #-------------------------------------------------------------
             y = np.linalg.lstsq(H_test[0:m+2, 0:m+1], beta_test)[0]
-            #print("HELLO", y-y_test)
             #-------------------------------------------------------------
+
+            #y = np.matmul( np.linalg.inv( H_test[0:m, 0:m]), beta_test[0:m] )
+            #y = np.linalg.solve( H_test[0:m, 0:m], beta_test[0:m] )
 
 
         else:
