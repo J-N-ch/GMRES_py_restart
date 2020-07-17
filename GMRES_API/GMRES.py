@@ -1,3 +1,5 @@
+import scipy.linalg as splinalg
+
 import numpy as np
 import math
 
@@ -57,8 +59,7 @@ class GMRES_API(object):
 
 
         H = np.zeros(( m+1, m+1 ))
-        H_test = np.zeros(( m+1, m ))
-        UT_test = np.zeros(( m+1, m ))
+        H_test = np.zeros(( m+1, m+1 ))
 
         Q = np.zeros((   n, m+1 ))
         Q[:,0] = r / r_norm
@@ -67,8 +68,9 @@ class GMRES_API(object):
         for k in range(m):
 
             ( H[0:k+2, k], Q[:, k+1] )    = __class__.arnoldi( self.A, Q, k)
-            H_test[:,k] = H[:,k]
-            #print(H_test)
+            #H_test[:,k] = H[:,k]
+            H_test = H
+            print("H_test =\n",H_test)
             if test_Givens_out_of_for_loop is not True:
                 ( H[0:k+2, k], cs[k], sn[k] ) = __class__.apply_givens_rotation( H[0:k+2, k], cs, sn, k)
                 # update the residual vector
@@ -94,9 +96,12 @@ class GMRES_API(object):
                 # update the residual vector
                 beta[ k+1 ] = -sn[k] * beta[k]
                 beta[ k   ] =  cs[k] * beta[k]
+            print("H_Givens_test =\n", H_Givens_test)
+            print("beta =\n", beta)
             #y = __class__.__back_substitution( H_Givens_test[0:k+1, 0:k+1], beta[0:k+1] )
             #y = np.matmul( np.linalg.inv( H_Givens_test[0:k+1, 0:k+1]), beta[0:k+1] )
-            #y = np.linalg.lstsq(H_Givens_test[0:m+2, 0:m+1], beta)[0]
+            #y = np.linalg.lstsq(H_Givens_test[0:m, 0:m], beta[0:m])[0]
+            #y = splinalg.solve_triangular(H_Givens_test[0:m, 0:m],beta[0:m] )
             #---------------------------------------------------------------------------------------------------------------------
 
             # 2. GMRES using QR decomposition to solve lstsq
@@ -104,16 +109,23 @@ class GMRES_API(object):
             H_QR_test = np.copy(H_test)
             QR_q, QR_r = np.linalg.qr(H_QR_test, mode='reduced')
             #print(QR_q)
-            #print(QR_r)
+            print("QR_r =\n", QR_r)
             #print(beta)
             new_beta = np.matmul(  QR_q.T, beta )
-            #print(new_beta)
-            #y = np.linalg.lstsq(QR_r,new_beta )[0]
+            #print(new_beta[0:m])
+            print("new_beta =",new_beta)
+            #y = np.linalg.lstsq(QR_r[0:m, 0:m],new_beta[0:m] )[0]
+            #y = np.linalg.lstsq(QR_r[:,0:m],new_beta )[0]
+            #y = splinalg.solve_triangular(QR_r[0:m, 0:m],new_beta[0:m] )
             #-----------------------------------------------------
 
             # 3. GMRES directly using numpy.linalg.lstsq  to solve lstsq (the most success one until now !)
             #-------------------------------------------------------------
-            y = np.linalg.lstsq(H_test[0:m+2, 0:m+1], beta_test)[0]
+            y = np.linalg.lstsq(H_test[0:m+1, 0:m], beta_test)[0]
+            #y = np.linalg.solve(H_test[0:m, 0:m], beta_test[0:m])
+            print(H_test[0:m+1, 0:m])
+            print(beta_test)
+            #print(np.linalg.solve(H_test[0:m, 0:m], beta_test[0:m]))
             #-------------------------------------------------------------
 
             #y = np.matmul( np.linalg.inv( H_test[0:m, 0:m]), beta_test[0:m] )
@@ -213,17 +225,6 @@ class GMRES_API(object):
                 bb += A[i, j] * x[j]
             x[i] = (b[i] - bb) / A[i, i]
         return x
-
-    '''
-    def lstsq_Givens(H_test, beta,  m):
-	for k in range(m):
-	    ( H_test[0:k+2, k], cs[k], sn[k] ) = __class__.apply_givens_rotation( H_test[0:k+2, k], cs, sn, k)
-	    # update the residual vector
-	    beta[ k+1 ] = -sn[k] * beta[k]
-	    beta[ k   ] =  cs[k] * beta[k]
-	y = __class__.__back_substitution( H_test[0:k+1, 0:k+1], beta[0:k+1] )
-    '''
-
 
     def final_residual_info_show( self ):
         print( "x  =", self.x, "residual_norm =  ", self.final_residual_norm ) 
