@@ -10,3 +10,11 @@ python3 example1.py
 
 python3 example2.py
 ![image](./Graphs/example2.png)
+
+## Running tests
+
+After installing `numpy` and `scipy`, you can run the included tests with:
+
+```bash
+pytest
+```
