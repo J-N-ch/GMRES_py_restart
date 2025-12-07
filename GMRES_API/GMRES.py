@@ -173,7 +173,8 @@ class GMRES_API(object):
             h[i] = np.dot( q, Q[:,i])
             q = q - h[i] * Q[:, i]
         h[ k+1 ] = np.linalg.norm(q)
-        q = q / h[ k+1 ]
+        if h[ k+1 ] != 0:
+            q = q / h[ k+1 ]
         return h, q 
 
     '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
